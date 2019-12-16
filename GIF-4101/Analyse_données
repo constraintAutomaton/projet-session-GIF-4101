@@ -1,0 +1,35 @@
+from sklearn.feature_selection import SelectKBest, RFE, chi2, mutual_info_classif
+from sklearn.datasets import load_digits,load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
+from sklearn.neural_network import MLPClassifier
+import numpy as np
+
+X,y = 
+
+#Normalisé le data ?
+#X = preprocessing.minmax_scale(X,feature_range=(0, 1))
+
+#Sélection de variables selon un test de chi2
+features = []
+SKB = SelectKBest(chi2,k=10)
+X_new = SKB.fit_transform(X,y)
+features = np.where(SKB.get_support())
+X_train, X_test, y_train, y_test = train_test_split(X_new, y, test_size=0.3, random_state=42)
+print(features)
+
+
+#Recherche en grillle pour l'optimisation de la fonction d'activation et nombre de couches dans un perceptron multicouches
+Activ = ["identity","logistic","tanh","relu"]
+grille = np.arange(40.0).reshape((10, 4))
+m=0
+for i in Activ :
+    l=0
+    for j in range(50,501,50):
+        mlp =  MLPClassifier(activation = i,hidden_layer_sizes = j,max_iter = 500)
+        mlp.fit(X_train,y_train)
+        grille[l,m] = mlp.score(X_test,y_test)
+        l+=1
+    m+=1
+grille= np.around(grille,decimals = 4)
+print(grille)
