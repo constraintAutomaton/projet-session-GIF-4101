@@ -77,7 +77,7 @@ def Loader_resultats(Annee):
 
 # obtenir les data en lien avec les keyword
 # parametre sont la liste de keyword et la periode d'interet sous la forme 'yyyy-mm-dd yyyy-mm-dd'
-# alexandre : je vais cleaner le data dans la fonction
+
 
 
 def Loader_Google_Trend(keyword, periode):
