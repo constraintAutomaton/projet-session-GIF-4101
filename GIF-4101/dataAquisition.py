@@ -96,7 +96,6 @@ def get_info(annees, chefs, periodes):
                     'British Columbia/Colombie-Britannique', 'Yukon',
                     'Northwest Territories/Territoires du Nord-Ouest', 'Nunavut'
                     ]
-    listCirconscription = lc
 
     data = pd.DataFrame(columns=["Annee", "Province", "Circonscription", "Trend chef parti libéral",
                                  "Trend chef parti conservateur", "Trend chef parti npd", "Trend chef parti bloc quebecois",
@@ -119,10 +118,7 @@ def get_info(annees, chefs, periodes):
         allo = 0
 
         for j in range(len(resultats)):
-            try:
-                circonscription = listCirconscription.index(resultats.iloc[j]["Electoral District Name/Nom de circonscription"])
-            except ValueError:
-                circonscription = -1
+            circonscription = resultats.iloc[j]["Electoral District Name/Nom de circonscription"]
 
 
             if circonscription != circonscription_precedente and isinstance(circonscription, str):
@@ -201,21 +197,11 @@ def DataElectionPrecedante(data):
 
 
 data = get_info(Liste_electionR, Chefs, Periodes)
-<<<<<<< HEAD
-outputFile = os.path.join("Data", "data.p")
-with open(outputFile, 'wb') as handle:
-    pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
-=======
 data = DataElectionPrecedante(data)
 outputFile = os.path.join("Data","data.p")
 with open(outputFile, 'wb') as handle:
     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-dataFile = outputFile = os.path.join("Data","data.p")
-data = None
-with open(dataFile, "rb") as input_file:
-    data = pickle.load(input_file)
-display(data)
 
 
->>>>>>> d52ae497ca599f36d1741203cc5683fe6c103ef0
+
