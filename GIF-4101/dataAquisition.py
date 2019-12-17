@@ -145,7 +145,7 @@ def get_info(annees, chefs, periodes):
 
             if resultats.iloc[j]["Affiliation"] == "Libéral":
                 vote_liberal = resultats.iloc[j]["Percentage of Votes Obtained /Pourcentage des votes obtenus"]
-            elif resultats.iloc[j]["Affiliation"] == "conservateur":
+            elif resultats.iloc[j]["Affiliation"] == "Conservateur" or resultats.iloc[j]["Affiliation"] == "conservateur":
                 vote_conservateur = resultats.iloc[j]["Percentage of Votes Obtained /Pourcentage des votes obtenus"]
             elif resultats.iloc[j]["Affiliation"] == "N.P.D." or resultats.iloc[j]["Affiliation"] == "NPD-Nouveau Parti démocratique":
                 vote_npd = resultats.iloc[j]["Percentage of Votes Obtained /Pourcentage des votes obtenus"]
@@ -170,8 +170,52 @@ def get_info(annees, chefs, periodes):
                 compteur += 1
     return data
 
+#Pour rajouter les résultats de l'année précédante
+def DataElectionPrecedante(data):
+
+    test = pd.DataFrame(columns=["Pourcentage vote parti liberal élection précédante", 
+                             "Pourcentage vote parti conservateur élection précédante",
+                                 "Pourcentage vote parti npd élection précédante", 
+                             "Pourcentage vote parti bloc quebecois élection précédante"])
+
+
+    for k in range(len(data)):
+        Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = 0,0,0,0
+        for j in range(len(data)):
+            if data.iloc[k,0] == "2006R":
+                if data.iloc[j,0] == "2004R" and data.iloc[j,2] == data.iloc[k,2]:
+                    Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
+            elif data.iloc[k,0] == "2008R":
+                if data.iloc[j,0] == "2006R" and data.iloc[j,2] == data.iloc[k,2]:
+                    Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
+            elif data.iloc[k,0] == "2011R":
+                if data.iloc[j,0] == "2008R" and data.iloc[j,2] == data.iloc[k,2]:
+                    Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
+            elif data.iloc[k,0] == "2015R":
+                if data.iloc[j,0] == "2011R" and data.iloc[j,2] == data.iloc[k,2]:
+                    Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
+        test.loc[k]= [Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc]
+    
+    dataComplet = pd.concat([data,test],axis = 1)
+    return dataComplet
+
 
 data = get_info(Liste_electionR, Chefs, Periodes)
+<<<<<<< HEAD
 outputFile = os.path.join("Data", "data.p")
 with open(outputFile, 'wb') as handle:
     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+=======
+data = DataElectionPrecedante(data)
+outputFile = os.path.join("Data","data.p")
+with open(outputFile, 'wb') as handle:
+    pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+dataFile = outputFile = os.path.join("Data","data.p")
+data = None
+with open(dataFile, "rb") as input_file:
+    data = pickle.load(input_file)
+display(data)
+
+
+>>>>>>> d52ae497ca599f36d1741203cc5683fe6c103ef0
