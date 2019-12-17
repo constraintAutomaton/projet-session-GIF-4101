@@ -104,7 +104,7 @@ def get_info(annees, chefs, periodes):
 
     for i in range(len(annees)):
         resultats = Loader_resultats(annees[i])
-        annee = annees[i]
+        annee = int(annees[i][:-1])
 
         trend_chefs_parti = Loader_Google_Trend(chefs[i], periodes[i])
 
@@ -117,10 +117,13 @@ def get_info(annees, chefs, periodes):
         allo = 0
 
         for j in range(len(resultats)):
-            circonscription = resultats.iloc[j]["Electoral District Name/Nom de circonscription"]
+            if type(resultats.iloc[j]["Electoral District Name/Nom de circonscription"]) != float:
+               circonscription = lc.index(resultats.iloc[j]["Electoral District Name/Nom de circonscription"])
+            else:
+                circonscription = -1
+            
 
-
-            if circonscription != circonscription_precedente and isinstance(circonscription, str):
+            if circonscription != circonscription_precedente and isinstance(circonscription, int):
 
                 if j != 0:
                     allo += 1
@@ -151,16 +154,17 @@ def get_info(annees, chefs, periodes):
 
             if j == len(resultats) - 1 and isinstance(circonscription, int):
                 allo += 1
-                province = resultats.iloc[j]["Province"]
+                if type(resultats.iloc[j]["Province"]) != float:
+                    province = listProvince.index(resultats.iloc[j]["Province"])
 
-                trend_province_value = Province_data_to_trend[province]
-                trend_chef_liberal = trend_chefs_parti.loc[trend_province_value][chefs[i][0]]
-                trend_chef_conservateur = trend_chefs_parti.loc[trend_province_value][chefs[i][1]]
-                trend_chef_npd = trend_chefs_parti.loc[trend_province_value][chefs[i][2]]
-                trend_chef_bloc = trend_chefs_parti.loc[trend_province_value][chefs[i][3]]
+                    trend_province_value = Province_data_to_trend[resultats.iloc[j]["Province"]]
+                    trend_chef_liberal = trend_chefs_parti.loc[trend_province_value][chefs[i][0]]
+                    trend_chef_conservateur = trend_chefs_parti.loc[trend_province_value][chefs[i][1]]
+                    trend_chef_npd = trend_chefs_parti.loc[trend_province_value][chefs[i][2]]
+                    trend_chef_bloc = trend_chefs_parti.loc[trend_province_value][chefs[i][3]]
 
-                data.loc[compteur] = [annee, province, circonscription_precedente, trend_chef_liberal, trend_chef_conservateur,
-                                      trend_chef_npd, trend_chef_bloc, vote_liberal, vote_conservateur, vote_npd, vote_bloc]
+                    data.loc[compteur] = [annee, province, circonscription_precedente, trend_chef_liberal, trend_chef_conservateur,
+                                        trend_chef_npd, trend_chef_bloc, vote_liberal, vote_conservateur, vote_npd, vote_bloc]
 
                 compteur += 1
     return data
@@ -177,17 +181,17 @@ def DataElectionPrecedente(data):
     for k in range(len(data)):
         Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = 0,0,0,0
         for j in range(len(data)):
-            if data.iloc[k,0] == "2006R":
-                if data.iloc[j,0] == "2004R" and data.iloc[j,2] == data.iloc[k,2]:
+            if data.iloc[k,0] == 2006:
+                if data.iloc[j,0] == 2004 and data.iloc[j,2] == data.iloc[k,2]:
                     Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
-            elif data.iloc[k,0] == "2008R":
-                if data.iloc[j,0] == "2006R" and data.iloc[j,2] == data.iloc[k,2]:
+            elif data.iloc[k,0] == 2008:
+                if data.iloc[j,0] == 2006 and data.iloc[j,2] == data.iloc[k,2]:
                     Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
-            elif data.iloc[k,0] == "2011R":
-                if data.iloc[j,0] == "2008R" and data.iloc[j,2] == data.iloc[k,2]:
+            elif data.iloc[k,0] == 2011:
+                if data.iloc[j,0] == 2008 and data.iloc[j,2] == data.iloc[k,2]:
                     Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
-            elif data.iloc[k,0] == "2015R":
-                if data.iloc[j,0] == "2011R" and data.iloc[j,2] == data.iloc[k,2]:
+            elif data.iloc[k,0] == 2015:
+                if data.iloc[j,0] == 2011 and data.iloc[j,2] == data.iloc[k,2]:
                     Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
         test.loc[k]= [Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc]
     
@@ -197,6 +201,8 @@ def DataElectionPrecedente(data):
 
 data = get_info(Liste_electionR, Chefs, Periodes)
 data = DataElectionPrecedente(data)
+data = data.dropna()
+
 outputFile = os.path.join("Data","data.p")
 with open(outputFile, 'wb') as handle:
     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
