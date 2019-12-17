@@ -1,6 +1,5 @@
 
 # coding=utf-8
-
 import pandas as pd
 import os
 from pytrends.request import TrendReq
@@ -155,13 +154,13 @@ def get_info(annees, chefs, periodes):
                 compteur += 1
     return data
 
-#Pour rajouter les résultats de l'année précédante
-def DataElectionPrecedante(data):
 
-    test = pd.DataFrame(columns=["Pourcentage vote parti liberal élection précédante", 
-                             "Pourcentage vote parti conservateur élection précédante",
-                                 "Pourcentage vote parti npd élection précédante", 
-                             "Pourcentage vote parti bloc quebecois élection précédante"])
+def DataElectionPrecedente(data):
+
+    test = pd.DataFrame(columns=["Pourcentage vote parti liberal élection précédente", 
+                             "Pourcentage vote parti conservateur élection précédente",
+                                 "Pourcentage vote parti npd élection précédente", 
+                             "Pourcentage vote parti bloc quebecois élection précédente"])
 
 
     for k in range(len(data)):
@@ -186,7 +185,7 @@ def DataElectionPrecedante(data):
 
 
 data = get_info(Liste_electionR, Chefs, Periodes)
-data = DataElectionPrecedante(data)
+data = DataElectionPrecedente(data)
 outputFile = os.path.join("Data","data.p")
 with open(outputFile, 'wb') as handle:
     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -196,5 +195,4 @@ data = None
 with open(dataFile, "rb") as input_file:
     data = pickle.load(input_file)
 display(data)
-
 
