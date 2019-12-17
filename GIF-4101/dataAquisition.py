@@ -155,9 +155,9 @@ def get_info(annees, chefs, periodes):
             if j == len(resultats) - 1 and isinstance(circonscription, int):
                 allo += 1
                 if type(resultats.iloc[j]["Province"]) != float:
-                    province = resultats.iloc[j]["Province"]
+                    province = listProvince.index(resultats.iloc[j]["Province"])
 
-                    trend_province_value = Province_data_to_trend[province]
+                    trend_province_value = Province_data_to_trend[resultats.iloc[j]["Province"]]
                     trend_chef_liberal = trend_chefs_parti.loc[trend_province_value][chefs[i][0]]
                     trend_chef_conservateur = trend_chefs_parti.loc[trend_province_value][chefs[i][1]]
                     trend_chef_npd = trend_chefs_parti.loc[trend_province_value][chefs[i][2]]
