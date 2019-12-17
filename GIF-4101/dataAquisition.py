@@ -1,11 +1,10 @@
 
 # coding=utf-8
-
 import pandas as pd
 import os
 from pytrends.request import TrendReq
 import pickle
-
+from circonscription import listCirconscription as lc
 
 # pour connection pytrend
 pytrends = TrendReq(hl='en-US', tz=360)
@@ -68,6 +67,7 @@ Province_data_to_trend = {
 
 # suivre annee par un "R"
 # Retourne nom du district, Affiliation du candidat et son pourcentage
+    
 def Loader_resultats(Annee):
     dir = os.path.join("Data", "Resultats_uniformes.xlsx")
     df = pd.read_excel(dir, sheet_name=Annee)
@@ -88,12 +88,20 @@ def Loader_Google_Trend(keyword, periode):
 
 
 def get_info(annees, chefs, periodes):
+    listProvince = ['Newfoundland and Labrador/Terre-Neuve-et-Labrador',
+                    'Prince Edward Island/Île-du-Prince-Édouard',
+                    'Nova Scotia/Nouvelle-Écosse', 'New Brunswick/Nouveau-Brunswick',
+                    'Quebec/Québec', 'Ontario', 'Manitoba', 'Saskatchewan', 'Alberta',
+                    'British Columbia/Colombie-Britannique', 'Yukon',
+                    'Northwest Territories/Territoires du Nord-Ouest', 'Nunavut'
+                    ]
+
     data = pd.DataFrame(columns=["Annee", "Province", "Circonscription", "Trend chef parti libéral",
                                  "Trend chef parti conservateur", "Trend chef parti npd", "Trend chef parti bloc quebecois",
                                  "Pourcentage vote parti liberal", "Pourcentage vote parti conservateur",
                                  "Pourcentage vote parti npd", "Pourcentage vote parti bloc quebecois"])
-
     compteur = 0
+
     for i in range(len(annees)):
         resultats = Loader_resultats(annees[i])
         annee = annees[i]
@@ -111,13 +119,15 @@ def get_info(annees, chefs, periodes):
         for j in range(len(resultats)):
             circonscription = resultats.iloc[j]["Electoral District Name/Nom de circonscription"]
 
+
             if circonscription != circonscription_precedente and isinstance(circonscription, str):
 
                 if j != 0:
                     allo += 1
-                    province = resultats.iloc[j-1]["Province"]
+                    province = listProvince.index(
+                        resultats.iloc[j-1]["Province"])
 
-                    trend_province_value = Province_data_to_trend[province]
+                    trend_province_value = Province_data_to_trend[resultats.iloc[j-1]["Province"]]
                     trend_chef_liberal = trend_chefs_parti.loc[trend_province_value][chefs[i][0]]
                     trend_chef_conservateur = trend_chefs_parti.loc[trend_province_value][chefs[i][1]]
                     trend_chef_npd = trend_chefs_parti.loc[trend_province_value][chefs[i][2]]
@@ -130,7 +140,7 @@ def get_info(annees, chefs, periodes):
 
             if resultats.iloc[j]["Affiliation"] == "Libéral":
                 vote_liberal = resultats.iloc[j]["Percentage of Votes Obtained /Pourcentage des votes obtenus"]
-            elif resultats.iloc[j]["Affiliation"] == "conservateur":
+            elif resultats.iloc[j]["Affiliation"] == "Conservateur" or resultats.iloc[j]["Affiliation"] == "conservateur":
                 vote_conservateur = resultats.iloc[j]["Percentage of Votes Obtained /Pourcentage des votes obtenus"]
             elif resultats.iloc[j]["Affiliation"] == "N.P.D." or resultats.iloc[j]["Affiliation"] == "NPD-Nouveau Parti démocratique":
                 vote_npd = resultats.iloc[j]["Percentage of Votes Obtained /Pourcentage des votes obtenus"]
@@ -139,7 +149,7 @@ def get_info(annees, chefs, periodes):
 
             circonscription_precedente = circonscription
 
-            if j == len(resultats) - 1 and isinstance(circonscription, str):
+            if j == len(resultats) - 1 and isinstance(circonscription, int):
                 allo += 1
                 province = resultats.iloc[j]["Province"]
 
@@ -156,8 +166,40 @@ def get_info(annees, chefs, periodes):
     return data
 
 
+def DataElectionPrecedente(data):
+
+    test = pd.DataFrame(columns=["Pourcentage vote parti liberal élection précédente", 
+                             "Pourcentage vote parti conservateur élection précédente",
+                                 "Pourcentage vote parti npd élection précédente", 
+                             "Pourcentage vote parti bloc quebecois élection précédente"])
+
+
+    for k in range(len(data)):
+        Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = 0,0,0,0
+        for j in range(len(data)):
+            if data.iloc[k,0] == "2006R":
+                if data.iloc[j,0] == "2004R" and data.iloc[j,2] == data.iloc[k,2]:
+                    Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
+            elif data.iloc[k,0] == "2008R":
+                if data.iloc[j,0] == "2006R" and data.iloc[j,2] == data.iloc[k,2]:
+                    Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
+            elif data.iloc[k,0] == "2011R":
+                if data.iloc[j,0] == "2008R" and data.iloc[j,2] == data.iloc[k,2]:
+                    Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
+            elif data.iloc[k,0] == "2015R":
+                if data.iloc[j,0] == "2011R" and data.iloc[j,2] == data.iloc[k,2]:
+                    Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc = data.iloc[j,7:11]
+        test.loc[k]= [Res_prec_Libéral,Res_prec_Conservateur,Res_prec_Npd,Res_prec_Bloc]
+    
+    dataComplet = pd.concat([data,test],axis = 1)
+    return dataComplet
+
+
 data = get_info(Liste_electionR, Chefs, Periodes)
+data = DataElectionPrecedente(data)
 outputFile = os.path.join("Data","data.p")
 with open(outputFile, 'wb') as handle:
     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
 
