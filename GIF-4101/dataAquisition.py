@@ -201,6 +201,8 @@ def DataElectionPrecedente(data):
 
 data = get_info(Liste_electionR, Chefs, Periodes)
 data = DataElectionPrecedente(data)
+data = data.dropna()
+
 outputFile = os.path.join("Data","data.p")
 with open(outputFile, 'wb') as handle:
     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
