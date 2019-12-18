@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>6e7cbe76-a3b2-471c-9f8b-fe9ddefb882e</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PlotFeatures.py</StartupFile>
+    <StartupFile>Knn.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>

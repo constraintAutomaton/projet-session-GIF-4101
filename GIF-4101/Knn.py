@@ -12,7 +12,7 @@ from sklearn import preprocessing
 
 
 
-
+col = []
 
 dataFile = outputFile = os.path.join("Data","data.p")
 data = None
