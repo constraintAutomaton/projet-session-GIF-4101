@@ -4,10 +4,10 @@ from pytrends.request import TrendReq
 import pickle
 import numpy as np
 import matplotlib
-matplotlib.rcParams['figure.figsize'] = (17.0, 35.0)
+matplotlib.rcParams['figure.figsize'] = (19.0, 19.0)
 from matplotlib import pyplot
 
-
+matplotlib.rcParams.update({'font.size': 6})
 dataFile = outputFile = os.path.join("Data","data.p")
 data = None
 with open(dataFile, "rb") as input_file:
@@ -30,10 +30,11 @@ for i in range(len(data)):
         col.append("Green")
 
 fig, subfigs = pyplot.subplots(7, 4, tight_layout=True)
-
+pyplot.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.2, hspace=0.2)
 for (f1, f2), subfig in zip(pairs, subfigs.reshape(-1)):
     X = data.iloc[:,[f1,f2]]
     subfig.scatter(X.iloc[:, 0], X.iloc[:, 1], c=col)
     subfig.set_xlabel(list(data)[f1])
     subfig.set_ylabel(list(data)[f2])
     pass
+pyplot.show()
