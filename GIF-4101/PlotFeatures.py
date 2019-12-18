@@ -21,13 +21,13 @@ col = []
 for i in range(len(data)):
     maxi = max(data.iloc[i,7],data.iloc[i,8],data.iloc[i,9],data.iloc[i,10])
     if maxi == data.iloc[i,7]:
-        col.append(1)
+        col.append("Black")
     elif maxi == data.iloc[i,8]:
-        col.append(2)
+        col.append("Red")
     elif maxi == data.iloc[i,9]:
-        col.append(3)
+        col.append("Blue")
     elif maxi == data.iloc[i,10]:
-        col.append(4)
+        col.append("Green")
 
 fig, subfigs = pyplot.subplots(7, 4, tight_layout=True)
 
