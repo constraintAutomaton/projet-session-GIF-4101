@@ -1,7 +1,9 @@
 
 # coding=utf-8
 import pandas as pd
+import numpy as np
 import os
+import math
 from pytrends.request import TrendReq
 import pickle
 from circonscription import listCirconscription as lc
@@ -33,6 +35,7 @@ POLF = ['élections', 'parti politique',
         'débat', 'actualités', 'actualités france']
 POLE = ['election', 'democracy', 'r politics',
         'cnn politics', 'political spectrum']
+Liste_trend = [ENVF,ENVE,POLF,POLE,ECOF,ECOE,EDUF,EDUE,SANF,SANE,IMMF,IMME]
 
 # [Libéral, Conservateur, NPD, Bloc Québécois]
 Chef2004 = ['Paul Martin', 'Stephen Harper', 'Jack Layton', 'Gilles Duceppe']
@@ -86,7 +89,6 @@ def Loader_Google_Trend(keyword, periode):
         resolution='REGION', inc_low_vol=True, inc_geo_code=False)
     return df
 
-
 def get_info(annees, chefs, periodes):
     listProvince = ['Newfoundland and Labrador/Terre-Neuve-et-Labrador',
                     'Prince Edward Island/Île-du-Prince-Édouard',
@@ -107,7 +109,6 @@ def get_info(annees, chefs, periodes):
         annee = int(annees[i][:-1])
 
         trend_chefs_parti = Loader_Google_Trend(chefs[i], periodes[i])
-
         vote_npd = 0
         vote_bloc = 0
         vote_liberal = 0
@@ -198,11 +199,79 @@ def DataElectionPrecedente(data):
     dataComplet = pd.concat([data,test],axis = 1)
     return dataComplet
 
+def get_Google_T(data,liste,periode):
+    listProvince = ['Newfoundland and Labrador/Terre-Neuve-et-Labrador',
+                    'Prince Edward Island/Île-du-Prince-Édouard',
+                    'Nova Scotia/Nouvelle-Écosse', 'New Brunswick/Nouveau-Brunswick',
+                    'Quebec/Québec', 'Ontario', 'Manitoba', 'Saskatchewan', 'Alberta',
+                    'British Columbia/Colombie-Britannique', 'Yukon',
+                    'Northwest Territories/Territoires du Nord-Ouest', 'Nunavut'
+                    ]
+    data['env'] = 0
+    data['san'] = 0
+    data['pol'] = 0
+    data['eco'] = 0
+    data['edu'] = 0
+    liste1 = [liste[0][0],liste[2][0],liste[4][0],liste[6][0],liste[8][0]]
+    liste2 = [liste[0][1],liste[2][1],liste[4][1],liste[6][1],liste[8][1]]
+    liste3 = [liste[1][0],liste[3][0],liste[5][0],liste[7][0],liste[9][0]]
+    liste4 = [liste[1][1],liste[3][1],liste[5][1],liste[7][1],liste[9][1]]
+    listeGroupe = [liste1,liste2,liste3,liste4]
+    for year in periode:
+        total = np.zeros((13,5))
+        for itt in listeGroupe:
+            data1 = Loader_Google_Trend(itt, year)
+            dtt = data1.to_numpy()
+            total = np.add(dtt,total)
+            print(total)
+        for k in range(len(data)):
+            i = data.at[k,'Province']
+
+            if math.isnan(i):
+                i = 0
+            if type(i) is str:
+                i = listeProvince.index(i)
+                i = int(i)
+            else:
+                i = int(i)
+            if data.iloc[k,0] == 2004 and year == periode[0]:
+                data.at[k,'env'] = total[i,0]
+                data.at[k,'pol'] = total[i,1]
+                data.at[k,'eco'] = total[i,2]
+                data.at[k,'edu'] = total[i,3]
+                data.at[k,'san'] = total[i,4]
+            elif data.iloc[k,0] == 2006 and year == periode[1]:
+                data.at[k,'env'] = total[i,0]
+                data.at[k,'pol'] = total[i,1]
+                data.at[k,'eco'] = total[i,2]
+                data.at[k,'edu'] = total[i,3]
+                data.at[k,'san'] = total[i,4]
+            elif data.iloc[k,0] == 2008 and year == periode[2]:
+                data.at[k,'env'] = total[i,0]
+                data.at[k,'pol'] = total[i,1]
+                data.at[k,'eco'] = total[i,2]
+                data.at[k,'edu'] = total[i,3]
+                data.at[k,'san'] = total[i,4]
+            elif data.iloc[k,0] == 2011 and year == periode[3]:
+                data.at[k,'env'] = total[i,0]
+                data.at[k,'pol'] = total[i,1]
+                data.at[k,'eco'] = total[i,2]
+                data.at[k,'edu'] = total[i,3]
+                data.at[k,'san'] = total[i,4]
+            elif data.iloc[k,0] == 2015 and year == periode[4]:
+                data.at[k,'env'] = total[i,0]
+                data.at[k,'pol'] = total[i,1]
+                data.at[k,'eco'] = total[i,2]
+                data.at[k,'edu'] = total[i,3]
+                data.at[k,'san'] = total[i,4]
+    print(data.describe)
+    return data
 
 data = get_info(Liste_electionR, Chefs, Periodes)
 data = DataElectionPrecedente(data)
+data = get_Google_T(data,Liste_trend,Periodes)
 data = data.dropna()
-
+print(data['Province'][4])
 outputFile = os.path.join("Data","data.p")
 with open(outputFile, 'wb') as handle:
     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
