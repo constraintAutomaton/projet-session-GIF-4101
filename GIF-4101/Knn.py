@@ -34,7 +34,7 @@ for i in range(len(data)):
   
 X = data.iloc[:,[3,4,5,6,11,12,13,14]]  
 
-X = preprocessing.scale(X)
+X = preprocessing.minmax_scale(X)
 
 
 y = np.zeros(np.shape(X)[0])
@@ -44,20 +44,20 @@ scoresDistanceWeights = []
 for i in range(len(data)):
     maxi = max(data.iloc[i,7],data.iloc[i,8],data.iloc[i,9],data.iloc[i,10])
     if maxi == data.iloc[i,7]:
-        y[i] == 1
+        y[i] = 1
     elif maxi == data.iloc[i,8]:
-        y[i] == 2
+        y[i] = 2
     elif maxi == data.iloc[i,9]:
-        y[i] == 3
+        y[i] = 3
     elif maxi == data.iloc[i,10]:
-        y[i] == 4
+        y[i] = 4
 
     
-k = [10,30,50,70,90,110,130,150]
+k = [1,3,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80]
 N =np.shape(X)[0]
 for i in k:
     Avs = 0
-    RPK = KFold(n_splits=10)
+    RPK = KFold(n_splits=N)
     for train,test in RPK.split(y):
         Data_train,target_train = X[train,:],y[train]
         Data_test,target_test = X[test,:],y[test]
@@ -71,7 +71,7 @@ for i in k:
 
 for i in k:
     Avs=0
-    RPK = KFold(n_splits=10)
+    RPK = KFold(n_splits=N)
     for train,test in RPK.split(y):
         Data_train,target_train = X[train,:],y[train]
         Data_test,target_test = X[test,:],y[test]
@@ -79,7 +79,8 @@ for i in k:
         knn.fit(Data_train,target_train)
         Avs +=knn.score(Data_test,target_test)
     scoresDistanceWeights.append(Avs/N) 
-
+print(scoresUniformWeights)
+print(scoresDistanceWeights)
 
 pyplot.plot(np.array(k),np.array(scoresUniformWeights),label= "Uniform")
 pyplot.plot(np.array(k),np.array(scoresDistanceWeights),label = "Distance")
